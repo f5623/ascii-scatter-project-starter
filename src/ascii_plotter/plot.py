@@ -16,6 +16,9 @@ STYLES = {
     "D": "bold yellow",
 }
 
+# Zeichen, das für jeden Datenpunkt gezeichnet wird.
+POINT_CHAR = "●"
+
 # Das Console-Objekt schreibt (farbig) ins Terminal.
 console = Console()
 
@@ -68,15 +71,45 @@ def render_scatter(points, width=40, height=15):
             # Stelle schon belegt -> Kollision markieren.
             grid[row][x_pos] = "*"
 
-    # 4. Grid Zeile für Zeile farbig ausgeben.
-    for grid_row in grid:
-        line = Text()
+    # 4. Grid Zeile für Zeile farbig ausgeben, mit y-Achse links.
+    #    Platz für die y-Beschriftung (z. B. "   8.4").
+    label_width = 6
+
+    for i, grid_row in enumerate(grid):
+        # Nur oberste und unterste Zeile bekommen eine Zahl.
+        if i == 0:
+            label = f"{max_y:>{label_width}.1f}"
+        elif i == height - 1:
+            label = f"{min_y:>{label_width}.1f}"
+        else:
+            label = " " * label_width
+
+        # Jede Zeile beginnt mit Beschriftung und senkrechter Achse.
+        line = Text(label + " |")
         for symbol in grid_row:
             if symbol in STYLES:
-                line.append(symbol, style=STYLES[symbol])
+                # Kategorie bestimmt nur die Farbe, gezeichnet wird ein Punkt.
+                line.append(POINT_CHAR, style=STYLES[symbol])
             else:
                 line.append(symbol)
         console.print(line)
+
+    # 5. x-Achse: Ecke "+" und waagerechte Linie unter dem Grid.
+    console.print(" " * label_width + " +" + "-" * width)
+
+    # 6. x-Beschriftung: Minimum links, Maximum rechts.
+    min_label = f"{min_x:.1f}"
+    max_label = f"{max_x:.1f}"
+    gap = max(width - len(min_label) - len(max_label), 1)
+    console.print(" " * (label_width + 2) + min_label + " " * gap + max_label)
+
+    # 7. Legende: welche Farbe gehört zu welcher Kategorie?
+    legend = Text("\n" + " " * (label_width + 2))
+    for category, style in STYLES.items():
+        legend.append(POINT_CHAR, style=style)
+        legend.append(f" {category}   ")
+    legend.append("* = mehrere Punkte")
+    console.print(legend)
 
 
 # Wird nur ausgeführt, wenn die Datei direkt gestartet wird,
@@ -90,3 +123,4 @@ if __name__ == "__main__":
         ("D", 8.2, 2.0),
     ]
     render_scatter(example_points)
+    
