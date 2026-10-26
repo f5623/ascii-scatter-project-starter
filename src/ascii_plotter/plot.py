@@ -5,6 +5,7 @@ Erwartet Punkte im vereinbarten Format:
 also (Kategorie, x-Wert, y-Wert).
 """
 
+
 from rich.console import Console
 from rich.text import Text
 
