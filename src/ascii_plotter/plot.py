@@ -123,3 +123,4 @@ if __name__ == "__main__":
         ("D", 8.2, 2.0),
     ]
     render_scatter(example_points)
+    
